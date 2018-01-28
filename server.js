@@ -3,23 +3,30 @@
 
 // init project
 var express = require('express');
+//easily parse user-agent response
+var userAgent = require('express-useragent');
 var bodyParser = require('body-parser');
 var cors = require('cors');
 var app = express();
+
+// instantiate body-parser, cors, useragent
+app.use(express.static('public'));
 app.use(bodyParser.json());
 app.use(cors());
-
-// we've started you off with Express, 
-// but feel free to use whatever libs or frameworks you'd like through `package.json`.
-
-// http://expressjs.com/en/starter/static-files.html
-app.use(express.static('public'));
+app.use(userAgent.express());
 
 // http://expressjs.com/en/starter/basic-routing.html
 app.get("/", function (request, response) {
   response.sendFile(__dirname + '/views/index.html');
 });
 
+app.get('/api/whoami', function(request, response){
+  var ipAddress = request.ip;
+  var language = request.acceptsLanguages();
+  var software = request.useragent.browser + ', ' + request.useragent.os;
+  
+  response.json({'ipAddress': ipAddress, 'language': language[0], 'software': software});
+});
 
 // listen for requests :)
 var listener = app.listen(process.env.PORT, function () {
